@@ -7,7 +7,7 @@ Database: MongoDB
 Architecture: front-end/back-end/database are deployed into 3 different containers with Nginx/Node/mongo as base image.
 # Build and Run  
 ```
-$ cd grocery-app
+$ cd grocery-app-master
 $ docker-compose up 
 ```
 Open browser and go to http://localhost/ to see the result
