@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  client:
+    build: ./front-end
+    ports:
+    - 80:80
+    depends_on:
+    - rest-server
+
+  rest-server:
+    build: ./back-end
+    ports:
+    - 5001:5001
+    environment:
+    - SERVER_PORT=5001
+    - CONNECTIONSTRING=mongodb://mongo-db:27017/grocery-app
+    depends_on:
+    - mongo-db
+
+  mongo-db:
+    image: mongo
+    ports:
+    - 27017:27017
+    volumes:
+    - mongodb:/data/db
+    - mongodb_config:/data/configdb
+  
+volumes:
+ mongodb:
+ mongodb_config:
