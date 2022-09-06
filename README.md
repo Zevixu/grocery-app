@@ -4,7 +4,7 @@ This is a grocery list web app which allows logged-in user to make/edit a grocer
 Front-end: Vue.js  
 Back-end: Node.js(Express)  
 Database: MongoDB  
-Architecture: front-end/back-end/database are deployed into 3 different containers with Nginx/Node/mongo as base image.
+Architecture: front-end/back-end/database are deployed into 3 different docker containers with Nginx/Node/mongo as base image.
 # Build and Run  
 ```
 $ cd grocery-app-master
