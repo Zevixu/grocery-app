@@ -1,5 +1,5 @@
 # Grocery-App
-This is a grocery list web app which allows logged-in user to make/edit a grocery list.
+This is a grocery list web app which allows logged-in user to make/edit a list for different types of grocery.
 # Tech Stack
 Front-end: Vue.js  
 Back-end: Node.js(Express)  
