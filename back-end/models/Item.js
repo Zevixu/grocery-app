@@ -11,6 +11,10 @@ const ItemSchema = new Schema({
     type: String,
     required: true
   },
+  category:{
+    type: String,
+    required: true
+  },
   user_id:{
     type: String,
     required: true

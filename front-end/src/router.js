@@ -20,6 +20,7 @@ const router = new Router({
 })
 
 // add route guardian
+/*
 router.beforeEach((to, from, next) => {
   const isLogin = localStorage.eleToken ? true : false;
   if (to.path == "/login" || to.path == "/register") {
@@ -28,5 +29,6 @@ router.beforeEach((to, from, next) => {
     isLogin ? next() : next("/login");
   }
 })
+*/
 
 export default router;

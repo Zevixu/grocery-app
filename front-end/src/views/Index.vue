@@ -4,29 +4,32 @@
       <h1>Grocery List</h1>
     </div>
 
+    <div class="selection">
+      <span>Current List: </span>
+      <el-select v-model="type" placeholder="Select">
+        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"
+          :disabled="item.disabled">
+        </el-option>
+      </el-select>
+    </div>
+
     <div class="table">
-      <el-table :data="tableData" style="width: 100%" empty-text='click button below to add your first item!'
-        :header-cell-style="{ background: '#AACCC6' }">
-        <el-table-column label="Completed" style="width: 20%" prop="Completed">
-          <template slot-scope='scope'>
-            <el-checkbox v-model="scope.row.Completed" @change="onClickItem(scope.row)"></el-checkbox>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="Quantity" style="width: 20%" prop="item_quantity">
-        </el-table-column>
-
-        <el-table-column label="Item" style="width: 20%" prop="item_name">
-        </el-table-column>
-
-        <el-table-column label="Operation" style="width: 20%" prop="operation">
-          <template slot-scope='scope'>
-            <el-button type="warning" icon='edit' size="small" @click='onEditItem(scope.row)'>Edit</el-button>
-            <el-button type="danger" icon='delete' size="small" @click='onDeleteItem(scope.row)'>Delete
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div v-if="type === 'Meat'">
+        <listA :tableData='tableDataforMeat' :type='type' @update_dialog_config="update_dialog_config"
+          @update_form="update_form" @update1="getData"></listA>
+      </div>
+      <div v-else-if="type === 'Vegetable&Fruit'">
+        <listB :tableData='tableDataforVF' :type='type' @update_dialog_config="update_dialog_config"
+          @update_form="update_form" @update1="getData"></listB>
+      </div>
+      <div v-else-if="type === 'Dairy'">
+        <listC :tableData='tableDataforDairy' :type='type' @update_dialog_config="update_dialog_config"
+          @update_form="update_form" @update1="getData"></listC>
+      </div>
+      <div v-else-if="type === 'Other'">
+        <listD :tableData='tableDataforOther' :type='type' @update_dialog_config="update_dialog_config"
+          @update_form="update_form" @update1="getData"></listD>
+      </div>
     </div>
 
     <div class="bottom">
@@ -41,18 +44,25 @@
     </div>
 
     <!-- Dialog page -->
-    <DialogFound :dialog_config='dialog_config' :form='form' @update="getData"></DialogFound>
+    <DialogFound :dialog_config='dialog_config' :form='form' @update2="getData"></DialogFound>
   </div>
 </template>
 
 <script>
   import DialogFound from "../components/DialogFound";
+  import listA from "../components/ListA";
+  import listB from "../components/ListB";
+  import listC from "../components/ListC";
+  import listD from "../components/ListD";
 
   export default {
     name: 'index',
     data() {
       return {
-        tableData: [],
+        tableDataforMeat: [],  //data for list of meat
+        tableDataforVF: [],    //data for list of vegetables and fruits
+        tableDataforDairy: [], //data for dairy
+        tableDataforOther: [], //data for all other items
         dialog_config: {
           show: false, //indicating whether show dialog page or not
           title: "",
@@ -61,56 +71,63 @@
         form: {
           item_name: "",
           item_quantity: "",
+          category: "",
           id: "",
           user_email: ""
-        }
+        },
+        options: [{
+          value: 'Meat',
+          label: 'Meat'
+        }, {
+          value: 'Vegetable&Fruit',
+          label: 'Vegetable&Fruit'
+        }, {
+          value: 'Dairy',
+          label: 'Dairy'
+        }, {
+          value: 'Other',
+          label: 'Other'
+        }],
+        type: 'Meat'
       }
     },
     created() {
       this.getData();
     },
     components: {
-      DialogFound
+      DialogFound,
+      listA,
+      listB,
+      listC,
+      listD
     },
     methods: {
       //retrieve data when loading the page
       getData() {
         this.$axios.get(`/api/items/${localStorage.user_email}`)
-          .then(res => { this.tableData = res.data })
-      },
-      onEditItem(row) {
-        this.dialog_config = { show: true, title: "Edit an item", var: "edit" };
-        this.form = { item_name: row.item_name, item_quantity: row.item_quantity, id: row._id, user_email: "" };
-      },
-      onDeleteItem(row) {
-        this.$axios.delete(`/api/items/delete/${row._id}`)
-          .then(() => {
-            this.$message("delete success!");
-            this.getData();
-          });
+          .then(res => {
+            const tmp = res.data;
+            this.tableDataforMeat = tmp.filter(item => item.category === 'Meat');
+            this.tableDataforVF = tmp.filter(item => item.category === 'Vegetable&Fruit');
+            this.tableDataforDairy = tmp.filter(item => item.category === 'Dairy');
+            this.tableDataforOther = tmp.filter(item => item.category === 'Other');
+          })
       },
       onAddItem() {
         this.dialog_config = { show: true, title: "Add an item", var: "add" };
-        this.form = { item_name: "", item_quantity: "", id: "", user_email: localStorage.user_email };
-      },
-      onClickItem(row) {
-        const tmp_form = { Completed: false };
-        tmp_form.Completed = row.Completed;
-        this.$axios.post(`/api/items/edit/${row._id}`, tmp_form)
-          .then(() => {
-            if (tmp_form.Completed == true) {
-              this.$message("mark as purchased!");
-            }
-            else {
-              this.$message("mark as unpurchased!");
-            }
-          });
+        this.form = { item_name: "", item_quantity: "", category: this.type, id: "", user_email: localStorage.user_email };
       },
       //delete localstorage var when logging out
       exit() {
         localStorage.removeItem("eleToken");
         localStorage.removeItem("user_email");
         this.$router.push("/login");
+      },
+      update_dialog_config(newVal) {
+        this.dialog_config = newVal
+      },
+      update_form(newVal) {
+        this.form = newVal
       }
     }
   }
@@ -120,6 +137,10 @@
 <style scoped>
   h1 {
     font-size: xx-large;
+  }
+
+  .selection {
+    margin-top: 20px;
   }
 
   .grocery_list {

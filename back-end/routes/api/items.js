@@ -16,6 +16,7 @@ router.post(
 
     if (req.body.item_name) itemFields.item_name = req.body.item_name;
     if (req.body.item_quantity) itemFields.item_quantity = req.body.item_quantity;
+    if (req.body.category) itemFields.category = req.body.category;
     itemFields.user_id = req.params.id;
 
     new Item(itemFields).save().then(item => {

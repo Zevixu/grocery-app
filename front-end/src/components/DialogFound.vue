@@ -55,7 +55,7 @@
                 type: "success"
               });
               this.dialog_config.show = false;
-              this.$emit("update");
+              this.$emit("update2");
             });
           }
         });
